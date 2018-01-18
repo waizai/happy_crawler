@@ -2,7 +2,7 @@
 * @Author: dangxiaoli
 * @Date:   2018-01-18 15:32:42
 * @Last Modified by:   dangxiaoli
-* @Last Modified time: 2018-01-18 18:05:23
+* @Last Modified time: 2018-01-19 00:09:01
 */
 
 //任务
@@ -11,7 +11,8 @@
 //页面是懒加载，异步加载，用cheerio拿到的html几乎是空的；所以要用Headless Chorme模拟用户真实的访问;
 
 const puppeteer = require('puppeteer');
-const { screenshot } = require('./config/default.js');
+const { mn } = require('./config/default.js');
+const srcToImg = require('../helper/srcToimg.js');
 
 (async() => {
     const browser = await puppeteer.launch();
@@ -47,9 +48,41 @@ const { screenshot } = require('./config/default.js');
      */
      page.on('load', () => {
         console.log('page loading done, start fetch...');
-     })
+        //获取图片列表
+        const result = await page.evaluate(() => {
+            const images = document.querySelectorAll('img.main_img');
+            return Array.prototype.map.call(images, img => {
+                img.src
+            })
+        });
+        console.log(`get ${result.length} images, start download`);
 
-    await browser.close();
+        // result.forEach(src => {
+        //     srcToImg(src, mn);
+        // });
+
+        result.forEach(src => {
+            await srcToImg(src, mn);
+        });
+        await browser.close();
+     });
+
+
 })();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

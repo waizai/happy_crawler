@@ -12,4 +12,7 @@ yarn-error*
 *.sublime-workspace
 package-lock.json
 .idea
-screenshot/*png
+screenshot/*.png
+mn/*.png
+mn/*.jpg
+mn/*.gif
