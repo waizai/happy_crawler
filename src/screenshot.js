@@ -2,7 +2,7 @@
 * @Author: dangxiaoli
 * @Date:   2018-01-18 15:32:42
 * @Last Modified by:   dangxiaoli
-* @Last Modified time: 2018-01-19 00:09:01
+* @Last Modified time: 2018-01-19 14:20:35
 */
 
 //任务
@@ -12,7 +12,7 @@
 
 const puppeteer = require('puppeteer');
 const { mn } = require('./config/default.js');
-const srcToImg = require('../helper/srcToimg.js');
+const srcToImg = require('./helper/srcToimg.js');
 
 (async() => {
     const browser = await puppeteer.launch();
@@ -25,7 +25,7 @@ const srcToImg = require('../helper/srcToimg.js');
     *   2. 给浏览器的窗口改的非常大，一次性加载完所有
     */
 
-    await page.evaluate({
+    await page.setViewport({
         width: 1920,
         height: 1080
     });
@@ -36,34 +36,36 @@ const srcToImg = require('../helper/srcToimg.js');
      */
     await page.focus('#kw');
     await page.keyboard.sendCharacter('狗');
+    console.log('focus');
 
     /*
      *  触发按钮的点击
      */
-    await page.click('.s_btn');
+    await page.click('.s_search');
     console.log('go to a search list');
 
     /*
      *  等待加载完成
      */
-     page.on('load', () => {
+     page.on('load', async () => {
         console.log('page loading done, start fetch...');
         //获取图片列表
-        const result = await page.evaluate(() => {
-            const images = document.querySelectorAll('img.main_img');
+        const results = await page.evaluate(() => {
+            const images = document.querySelectorAll('.main_img');
             return Array.prototype.map.call(images, img => {
-                img.src
+                return img.src
             })
         });
-        console.log(`get ${result.length} images, start download`);
+        console.log(`get ${results.length} images, start download`);
 
-        // result.forEach(src => {
-        //     srcToImg(src, mn);
-        // });
-
-        result.forEach(src => {
-            await srcToImg(src, mn);
+        //遍历保存src
+        results.forEach(src => {
+            srcToImg(src, mn);
         });
+
+        // results.forEach(src => {
+        //     await srcToImg(src, mn);
+        // });
         await browser.close();
      });
 
