@@ -1,11 +1,11 @@
-/*
+ /*
 * @Author: dangxiaoli
 * @Date:   2018-01-18 23:40:57
 * @Last Modified by:   dangxiaoli
-* @Last Modified time: 2018-01-19 17:17:10
+* @Last Modified time: 2018-01-19 20:19:41
 */
 const http = require('http');
-const http = require('https');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
@@ -13,8 +13,12 @@ const writeFile = promisify(fs.writeFile);
 
 
 
-module.exports = (src, dir) => {
-    console.log(src)
+module.exports = async(src, dir) => {
+    if(/\.(jpg|png|gif)$/.test(src)){
+        await urlToImg(src, dir);
+    }else {
+        await base64ToImg(src, dir);
+    }
 }
 
 
@@ -42,12 +46,6 @@ const urlToImg = promisify((url, dir, callback) => {
 
 
 
-
-
-
-
-
-
 //base64 => image
 const base64ToImg = async function(base64Str, dir){
     //data:image/jpeg;base64/asdasda
@@ -58,7 +56,7 @@ const base64ToImg = async function(base64Str, dir){
             .replace('jpeg','jpg');
         const file = path.join(dir, `${Date.now()}.${ext}`);
 
-        await writeFile(file, content, 'base64');
+        await writeFile(file, matches[2], 'base64');
         console.log(file);
     }catch(err){
         console.log(`非法 base64 字符串`);
